@@ -77,7 +77,28 @@ public class ClientUI extends JPanel {
 
     }
 
+    /*
+    final ThreadLocal<Runnable> getPrimeThread = new ThreadLocal<Runnable>(){
+        @Override
+        protected Runnable initialValue(){
+            return() -> {
 
+            }
+        }
+    }
+    */
+
+    Runnable client_run = () -> {
+        try {
+
+            socket = new Socket(ipAddress, 12345);
+            fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            toServer = new PrintWriter(socket.getOutputStream(), true);
+            toServer.println(bitLength);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    };
 
 
     private class GenPrimeListener implements ActionListener{
