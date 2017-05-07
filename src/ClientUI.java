@@ -57,7 +57,7 @@ public class ClientUI extends JPanel {
 
             @Override
             public void focusLost(FocusEvent e) {
-                //ipAddressTextField.setText(text);
+
             }
         });
         bitLengthTextField = new JTextField("Enter a bit length");
@@ -70,7 +70,7 @@ public class ClientUI extends JPanel {
 
             @Override
             public void focusLost(FocusEvent e) {
-                //bitLengthTextField.setText(text);
+                
             }
         });
         genPrimeButton = new JButton("Generate Prime");
@@ -171,47 +171,6 @@ public class ClientUI extends JPanel {
             }
             bitLength = Integer.parseInt(bitLengthTextField.getText());
 
-
-
-            /*
-            Runnable client_runnable = () -> {
-                try {
-
-                    socket = new Socket(ipAddress, 12345);
-                    fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                    toServer = new PrintWriter(socket.getOutputStream(), true);
-                    toServer.println(bitLength);
-
-                    resultTextArea.setBackground(Color.WHITE);
-                    resultTextArea.setText(fromServer.readLine());
-                    resultTextArea.setCaretPosition(0);
-                    //socket.close();
-
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-
-            };
-            client_runnable.run();
-
-            /*
-
-            try{
-                bitLength = Integer.parseInt(bitLengthTextField.getText());
-                if (bitLength <=1){
-                    resultTextArea.setBackground(Color.RED);
-                    return;
-                }
-                else{
-                    client_runnable.run();
-                }
-            } catch (NumberFormatException e1){
-                //e1.printStackTrace();
-                resultTextArea.setText("Not a number");
-                return;
-            }
-            */
-
         }
     }
 
@@ -222,10 +181,6 @@ public class ClientUI extends JPanel {
 
             Color color = new Color(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
             testJpanel.setBackground(color);
-
-            //testButton.setForeground(color);
-            //genPrimeButton.setForeground(color);
-            //testButton.setOpaque(true);
 
         }
     }

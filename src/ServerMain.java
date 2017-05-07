@@ -71,8 +71,7 @@ public class ServerMain {
 
         };
     }
-
-
+    
     public static void main(String args[]){
         ServerMain ServerMain = new ServerMain();
         Thread server = new Thread(ServerMain.server_thread);
