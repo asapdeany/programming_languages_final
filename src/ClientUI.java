@@ -2,11 +2,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.Socket;
+import java.net.*;
 import java.util.Random;
 
 /**
@@ -23,20 +25,19 @@ public class ClientUI extends JPanel {
 
     private String ipAddress;
     private int bitLength;
-
+    private int PORT = 13013;
     Socket socket = null;
     BufferedReader fromServer = null;
     PrintWriter toServer = null;
 
     Random rand = new Random();
 
-    boolean isServerConnected = false;
 
 
     public ClientUI(){
 
 
-        jFrame = new JFrame("Final Project");
+        jFrame = new JFrame("Final Project - Dean Sponholz");
         //program exits when frame closes
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jFrame.setSize(500, 500);
@@ -46,7 +47,32 @@ public class ClientUI extends JPanel {
         resultJPanel = new JPanel();
 
         ipAddressTextField = new JTextField("Enter an IP address");
+        ipAddressTextField.addFocusListener(new FocusListener() {
+
+            @Override
+            public void focusGained(FocusEvent e) {
+
+                ipAddressTextField.selectAll();
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                //ipAddressTextField.setText(text);
+            }
+        });
         bitLengthTextField = new JTextField("Enter a bit length");
+        bitLengthTextField.addFocusListener(new FocusListener() {
+
+            @Override
+            public void focusGained(FocusEvent e) {
+                bitLengthTextField.selectAll();
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                //bitLengthTextField.setText(text);
+            }
+        });
         genPrimeButton = new JButton("Generate Prime");
         genPrimeButton.addActionListener(new GenPrimeListener());
         genPrimeJPanel.add(ipAddressTextField);
@@ -57,7 +83,7 @@ public class ClientUI extends JPanel {
         testButton.addActionListener(new TestListener());
         testJpanel.add(testButton);
 
-        resultTextArea = new JTextArea("Result Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed HereResult Displayed Here");
+        resultTextArea = new JTextArea("Result Displayed Here                                                                                                                                                                                                                                                                             ");
         resultTextArea.setLineWrap(true);
         resultTextArea.setWrapStyleWord(true);
         resultTextArea.setColumns(20);
@@ -72,43 +98,82 @@ public class ClientUI extends JPanel {
         jFrame.add(resultJPanel, BorderLayout.SOUTH);
 
         jFrame.setVisible(true);
+        jFrame.requestFocusInWindow();
         jFrame.pack();
-
 
     }
 
-    /*
     final ThreadLocal<Runnable> getPrimeThread = new ThreadLocal<Runnable>(){
         @Override
         protected Runnable initialValue(){
             return() -> {
-
-            }
-        }
-    }
-    */
-
-    Runnable client_run = () -> {
-        try {
-
-            socket = new Socket(ipAddress, 12345);
-            fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            toServer = new PrintWriter(socket.getOutputStream(), true);
-            toServer.println(bitLength);
-        }catch (IOException e){
-            e.printStackTrace();
+                try {
+                    socket = new Socket();
+                    socket.connect(new InetSocketAddress(ipAddress, PORT), 6000);
+                    resultTextArea.setText("Connected and Thinking...");
+                    fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    toServer = new PrintWriter(socket.getOutputStream(), true);
+                    toServer.println(bitLength);
+                    resultTextArea.setBackground(Color.WHITE);
+                    resultTextArea.setText(fromServer.readLine());
+                    resultTextArea.setCaretPosition(0);
+                    genPrimeButton.setEnabled(true);
+                } catch (SocketTimeoutException e){
+                    resultTextArea.setBackground(Color.RED);
+                    resultTextArea.setText("Connection Timed Out - Check IP Address");
+                    genPrimeButton.setEnabled(true);
+                } catch (NoRouteToHostException e){
+                    resultTextArea.setBackground(Color.RED);
+                    resultTextArea.setText("Incorrect IP Address Number");
+                    genPrimeButton.setEnabled(true);
+                } catch (UnknownHostException e){
+                    resultTextArea.setBackground(Color.RED);
+                    resultTextArea.setText("Invalid IP Address Format");
+                    genPrimeButton.setEnabled(true);
+                } catch (ConnectException e){
+                    resultTextArea.setBackground(Color.RED);
+                    resultTextArea.setText("Incorrect IP Address Number");
+                    genPrimeButton.setEnabled(true);
+                } catch (IOException e){
+                    e.printStackTrace();
+                }
+            };
         }
     };
-
 
     private class GenPrimeListener implements ActionListener{
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            //ipAddress = ipAddressTextField.getText();
-            ipAddress = "10.70.23.55";
+            ipAddress = ipAddressTextField.getText();
+            //ipAddress = "10.70.23.55";
+
+            try{
+
+                bitLength = Integer.parseInt(bitLengthTextField.getText());
+
+                if (bitLength <=1){
+                    resultTextArea.setBackground(Color.RED);
+                    resultTextArea.setText("Bit Length must be greater than 1");
+                    return;
+                }
+                else{
+                    resultTextArea.setBackground(Color.white);
+                    genPrimeButton.setEnabled(false);
+                    resultTextArea.setText("Attempting to Connect to Server");
+                    Thread thread = new Thread(getPrimeThread.get());
+                    thread.start();
+                }
+            } catch (NumberFormatException e1){
+                resultTextArea.setBackground(Color.RED);
+                resultTextArea.setText("Bit Length not a number");
+                return;
+            }
             bitLength = Integer.parseInt(bitLengthTextField.getText());
 
+
+
+            /*
             Runnable client_runnable = () -> {
                 try {
 
@@ -116,11 +181,10 @@ public class ClientUI extends JPanel {
                     fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     toServer = new PrintWriter(socket.getOutputStream(), true);
                     toServer.println(bitLength);
+
                     resultTextArea.setBackground(Color.WHITE);
                     resultTextArea.setText(fromServer.readLine());
                     resultTextArea.setCaretPosition(0);
-                    isServerConnected = true;
-
                     //socket.close();
 
                 } catch (IOException e1) {
@@ -157,14 +221,18 @@ public class ClientUI extends JPanel {
         public void actionPerformed(ActionEvent e) {
 
             Color color = new Color(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
+            testJpanel.setBackground(color);
 
-            testButton.setForeground(color);
-            genPrimeButton.setForeground(color);
+            //testButton.setForeground(color);
+            //genPrimeButton.setForeground(color);
             //testButton.setOpaque(true);
 
         }
     }
 
 
+    public static void main(String args[]){
+        ClientUI clientUI = new ClientUI();
+    }
 
 }

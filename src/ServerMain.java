@@ -12,9 +12,7 @@ import java.util.Random;
  */
 public class ServerMain {
 
-    public final static int PORT = 12345;
-
-
+    public final static int PORT = 13013;
 
     public static int bitLength;
 
@@ -59,7 +57,7 @@ public class ServerMain {
 
         possPrime_thread = () -> {
             prime = BigInteger.probablePrime(bitLength, new Random());
-            System.out.println(prime);
+            //System.out.println(prime);
             toClient.println(prime);
 
             try {
@@ -73,6 +71,7 @@ public class ServerMain {
 
         };
     }
+
 
     public static void main(String args[]){
         ServerMain ServerMain = new ServerMain();
